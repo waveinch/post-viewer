@@ -1,0 +1,21 @@
+@()
+
+@main("POST to websocket") {
+
+
+  <h1>POST to websocket</h1>
+
+  <pre id="websocketContent">
+
+  </pre>
+
+  <script>
+          var socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + location.host + "/socket");
+
+          socket.onmessage = function (event) {
+            console.log(event.data);
+            var el = document.getElementById("websocketContent");
+            el.innerText = el.innerText + event.data + "\n";
+          }
+  </script>
+}
