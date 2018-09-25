@@ -38,9 +38,9 @@ class HomeController @Inject()(cc: ControllerComponents)(implicit system: ActorS
 
   import POST2WebSocketActor._
 
-  def post() = Action { implicit r =>
+  def post() = Action(parse.tolerantText) { implicit r =>
     if(r.hasBody) {
-      supervisor ! POSTBody(r.body.toString)
+      supervisor ! POSTBody(r.toString(),r.headers.toSimpleMap.map(x => x._1 + ": " + x._2).mkString("\n"),r.body)
     }
     Ok("recived")
   }
@@ -54,13 +54,15 @@ class POSTSupervisor extends Actor {
   override def receive: Receive = {
     case Register(client) => clients.add(client)
     case UnRegister(client) => clients.remove(client)
-    case POSTBody(body) => clients.foreach(_ ! body)
+    case POSTBody(request,headers,body) => clients.foreach { client =>
+      client ! s"REQUEST:\n$request\n\nHEADERS:\n$headers\n\nBODY:\n$body"
+    }
   }
 }
 
 object POST2WebSocketActor {
   def props(supervisor:ActorRef, out: ActorRef) = Props(new POST2WebSocketActor(supervisor,out))
-  case class POSTBody(body:String)
+  case class POSTBody(request:String,headers:String,body:String)
   case class Register(actor:ActorRef)
   case class UnRegister(actor:ActorRef)
 }

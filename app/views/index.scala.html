@@ -5,7 +5,7 @@
 
   <h1>POST to websocket</h1>
 
-
+  Last Request:
   <pre id="websocketContent">
 
   </pre>
@@ -16,7 +16,7 @@
           socket.onmessage = function (event) {
             console.log(event.data);
             var el = document.getElementById("websocketContent");
-            el.innerText = el.innerText + event.data + "\n";
+            el.innerText = event.data + "\n";
           }
   </script>
 }
